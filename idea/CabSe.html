@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cabse - Startup Pitch Presentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow: hidden;
+        }
+
+        .presentation-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        .slide {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.5s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            color: white;
+            text-align: center;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .slide.prev {
+            transform: translateX(-100%);
+        }
+
+        /* Slide-specific backgrounds */
+        .slide-1 { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .slide-2 { background: linear-gradient(135deg, #805186 0%, #f5576c 100%); }
+        .slide-3 { background: linear-gradient(135deg, #4facfe 0%, #247c80 100%); }
+        .slide-4 { background: linear-gradient(135deg, #278847 0%, #1d5c51 100%); }
+        .slide-5 { background: linear-gradient(135deg, #e74375 0%, #bb9f06 100%); }
+        .slide-6 { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); color: #333; }
+        .slide-7 { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); color: #333; }
+        .slide-8 { background: linear-gradient(135deg, #7c6ba5 0%, #e9e9e9 100%); }
+        .slide-9 { background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); color: #333; }
+        .slide-10 { background: linear-gradient(135deg, #ff8a80 0%, #ea4c89 100%); }
+        .slide-11 { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .slide-12 { background: linear-gradient(135deg, #36003d 0%, #b24755 100%); }
+        .slide-13 { background: linear-gradient(135deg, #3f5970 0%, #7ff1f7 100%); }
+        .slide-14 { background: linear-gradient(135deg, #485a4e 0%, #38f9d7 100%); }
+        .slide-15 { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        h3 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: #FFD700;
+        }
+
+        .slide-6 h3, .slide-7 h3, .slide-9 h3 {
+            color: #667eea;
+        }
+
+        p, li {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        ul {
+            text-align: left;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        li {
+            margin-bottom: 10px;
+            padding-left: 10px;
+        }
+
+        .highlight {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+        }
+
+        .slide-6 .highlight, .slide-7 .highlight, .slide-9 .highlight {
+            background: rgba(102, 126, 234, 0.1);
+            border: 2px solid #667eea;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .slide-6 .stat-card, .slide-7 .stat-card, .slide-9 .stat-card {
+            background: rgba(102, 126, 234, 0.1);
+            border: 2px solid #667eea;
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .control-btn {
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 25px;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .slide-indicator {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .indicator-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .indicator-dot.active {
+            background: white;
+            transform: scale(1.3);
+        }
+
+        .brand-showcase {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .brand-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .revenue-chart {
+            width: 100%;
+            max-width: 600px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .timeline {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 900px;
+            margin: 20px 0;
+        }
+
+        .timeline-item {
+            text-align: center;
+            flex: 1;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 0 5px;
+            border-radius: 10px;
+        }
+
+        .slide-6 .timeline-item, .slide-7 .timeline-item, .slide-9 .timeline-item {
+            background: rgba(102, 126, 234, 0.1);
+            border: 2px solid #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <!-- Slide 1: Title Slide -->
+        <div class="slide slide-1 active">
+            <h1>🚗 CabSe</h1>
+            <h2>Your All-in-One Mobility Platform</h2>
+            <div class="highlight">
+                <p>Transforming Transportation in Rajasthan Through Franchise Innovation</p>
+                <p><strong>Tourism • Local • Intercity • Pooling</strong></p>
+            </div>
+            <p style="margin-top: 40px; font-size: 1.1rem; opacity: 0.9;">
+                Connecting Travelers with Local Transport Partners
+            </p>
+        </div>
+
+        <!-- Slide 2: Why "Cabse"? -->
+        <div class="slide slide-2">
+            <h2>🎯 Why "CABSE"?</h2>
+            <div class="highlight">
+                <h3>1. Simple & Conversational</h3>
+                <p><strong>"CabSe"</strong> mimics everyday Hindi-English blend used by your target audience (18–40 age group)</p>
+                <div class="brand-showcase">
+                    <div class="brand-item">"Kaise jaoge?" → "CabSe!"</div>
+                    <div class="brand-item">"How should I go?" → "CabSe!"</div>
+                </div>
+                <p>This adds a fun, almost meme-like quality that sticks.</p>
+            </div>
+        </div>
+
+        <!-- Slide 3: Brand Benefits -->
+        <div class="slide slide-3">
+            <h2>🚀 Brand Power</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>GenZ Friendly</h3>
+                    <p>Hinglish is how Gen Z talks</p>
+                    <small>"College jaana hai… CabSe hi chal!"</small>
+                </div>
+                <div class="stat-card">
+                    <h3>Easy to Remember</h3>
+                    <p>2 syllables, quick to type</p>
+                    <small>Perfect for apps and ads</small>
+                </div>
+                <div class="stat-card">
+                    <h3>Unique & Available</h3>
+                    <p>cabse.com available</p>
+                    <small>@cabseapp handles ready</small>
+                </div>
+                <div class="stat-card">
+                    <h3>Indian Yet Modern</h3>
+                    <p>Rooted but cool</p>
+                    <small>Like Ola or Zomato</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Problem Statement -->
+        <div class="slide slide-4">
+            <h2>🎯 The Problem</h2>
+            <div class="highlight">
+                <h3>Fragmented Transportation in Tier 2/3 Cities</h3>
+                <ul>
+                    <li><strong>Tourists struggle</strong> to find reliable intercity transport</li>
+                    <li><strong>Local taxi operators</strong> lack digital presence</li>
+                    <li><strong>No unified platform</strong> for different ride types</li>
+                    <li><strong>Seasonal demand</strong> creates revenue gaps</li>
+                    <li><strong>Traditional booking methods</strong> limit customer reach</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 5: Market Opportunity -->
+        <div class="slide slide-5">
+            <h2>📈 Market Opportunity</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>₹2,000+ Cr</h3>
+                    <p>Rajasthan Tourism Vehicle Market</p>
+                </div>
+                <div class="stat-card">
+                    <h3>5+ Crore</h3>
+                    <p>Annual Visitors to Rajasthan</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Peak Season</h3>
+                    <p>Oct-Mar Tourist Rush</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Untapped</h3>
+                    <p>Digital Booking Potential</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Solution -->
+        <div class="slide slide-6">
+            <h2>💡 Our Solution</h2>
+            <div class="highlight">
+                <h3>Franchise-Based Mobility Platform</h3>
+                <ul>
+                    <li><strong>Partner with existing cab operators</strong> - Transform them into tech-enabled service providers</li>
+                    <li><strong>Unified app</strong> for tourists and locals</li>
+                    <li><strong>Multiple services:</strong> Local rides, intercity, tourism packages, pooling</li>
+                    <li><strong>Seasonal optimization</strong> for peak tourist periods</li>
+                    <li><strong>Lower commission rates</strong> due to franchise model</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 7: Business Model -->
+        <div class="slide slide-7">
+            <h2>💰 Business Model</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Franchise Fees</h3>
+                    <p>₹25K-75K Initial</p>
+                    <p>₹2K-6K Monthly</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Commission</h3>
+                    <p>8-12% on rides</p>
+                    <p>10-15% on packages</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Tourism Services</h3>
+                    <p>Hotel partnerships</p>
+                    <p>Guide referrals</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Additional Revenue</h3>
+                    <p>In-app advertising</p>
+                    <p>Insurance tie-ups</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Technology Platform -->
+        <div class="slide slide-8">
+            <h2>🔧 Technology Platform</h2>
+            <div class="highlight">
+                <h3>Rider App Features</h3>
+                <ul>
+                    <li>Multi-service booking (taxi/auto/bike/pool)</li>
+                    <li>Tourism package booking</li>
+                    <li>Real-time tracking & navigation</li>
+                    <li>Multiple payment options</li>
+                    <li>Seasonal pricing & packages</li>
+                </ul>
+                <h3>Franchise Partner Dashboard</h3>
+                <ul>
+                    <li>Fleet management & earnings tracking</li>
+                    <li>Customer booking management</li>
+                    <li>Performance analytics</li>
+                    <li>Marketing support tools</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 9: Financial Projections -->
+        <div class="slide slide-9">
+            <h2>📊 Financial Projections</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Initial Investment</h3>
+                    <p>₹1.2-1.8 Crores</p>
+                    <small>6-month runway</small>
+                </div>
+                <div class="stat-card">
+                    <h3>Month 6 Revenue</h3>
+                    <p>₹2.54 Lakhs/month</p>
+                    <small>Growing to ₹15L by Month 12</small>
+                </div>
+                <div class="stat-card">
+                    <h3>Break-even</h3>
+                    <p>Month 12-15</p>
+                    <small>Sustainable growth model</small>
+                </div>
+                <div class="stat-card">
+                    <h3>Year 1 Target</h3>
+                    <p>₹2-3 Crore Revenue</p>
+                    <small>8-10 Rajasthan cities</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10: Implementation Timeline -->
+        <div class="slide slide-10">
+            <h2>🗓️ 6-Month Roadmap</h2>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <h3>Month 1-2</h3>
+                    <p>Development</p>
+                    <small>Team building, MVP creation</small>
+                </div>
+                <div class="timeline-item">
+                    <h3>Month 3</h3>
+                    <p>Partner Acquisition</p>
+                    <small>15-20 franchise partners</small>
+                </div>
+                <div class="timeline-item">
+                    <h3>Month 4</h3>
+                    <p>Launch</p>
+                    <small>Jaipur, Udaipur, Jodhpur</small>
+                </div>
+                <div class="timeline-item">
+                    <h3>Month 5-6</h3>
+                    <p>Growth & Scale</p>
+                    <small>Peak season optimization</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: Target Metrics -->
+        <div class="slide slide-11">
+            <h2>🎯 6-Month Success Metrics</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Franchise Partners</h3>
+                    <p>15-20 active partners</p>
+                    <p>50-70 vehicles</p>
+                </div>
+                <div class="stat-card">
+                    <h3>User Acquisition</h3>
+                    <p>6,000+ registered users</p>
+                    <p>8,000+ monthly rides</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Tourism Focus</h3>
+                    <p>200+ packages/month</p>
+                    <p>30+ hotel partnerships</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Quality Metrics</h3>
+                    <p>4.0+ average rating</p>
+                    <p>80%+ partner satisfaction</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12: Competitive Advantage -->
+        <div class="slide slide-12">
+            <h2>🏆 Competitive Advantage</h2>
+            <div class="highlight">
+                <ul>
+                    <li><strong>Franchise Model:</strong> Unique approach leveraging existing operators</li>
+                    <li><strong>Tourism Focus:</strong> Specialized for heritage tourism market</li>
+                    <li><strong>Local Partnership:</strong> Deep market penetration through franchise partners</li>
+                    <li><strong>Lower Costs:</strong> Reduced driver acquisition and operational costs</li>
+                    <li><strong>Seasonal Optimization:</strong> Revenue strategies aligned with tourist seasons</li>
+                    <li><strong>Regional Expertise:</strong> Understanding of Rajasthan's tourism circuits</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 13: Team & Operations -->
+        <div class="slide slide-13">
+            <h2>👥 Team Structure</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Executive Team</h3>
+                    <p>CEO/Founder</p>
+                    <p>CTO</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Technology Team</h3>
+                    <p>4 Full-stack Developers</p>
+                    <p>UI/UX Designer</p>
+                    <p>QA Engineer</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Business Team</h3>
+                    <p>Marketing Manager</p>
+                    <p>Franchise Development</p>
+                    <p>Customer Support</p>
+                    <p>Finance & Operations</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Team Size</h3>
+                    <p>8-10 Members</p>
+                    <p>Lean & Efficient</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 14: Growth Strategy -->
+        <div class="slide slide-14">
+            <h2>🚀 Growth Strategy</h2>
+            <div class="highlight">
+                <h3>Phase 1: Rajasthan Domination (Year 1)</h3>
+                <ul>
+                    <li>8-10 cities across Rajasthan</li>
+                    <li>Focus on tourist circuits: Jaipur-Udaipur-Jodhpur</li>
+                    <li>Build strong franchise network</li>
+                </ul>
+                <h3>Phase 2: Regional Expansion (Year 2-3)</h3>
+                <ul>
+                    <li>Gujarat, Madhya Pradesh, Uttar Pradesh</li>
+                    <li>Heritage tourism focus</li>
+                    <li>Series A funding for expansion</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 15: Call to Action -->
+        <div class="slide slide-15">
+            <h1>🚗 Join the CabSe Journey</h1>
+            <div class="highlight">
+                <h2>Ready to Transform Rajasthan's Mobility?</h2>
+                <p style="font-size: 1.4rem; margin: 30px 0;">
+                    <strong>Investment Opportunity: ₹1.2-1.8 Crores</strong>
+                </p>
+                <p style="font-size: 1.2rem;">
+                    "Life mein kahin bhi jaana ho… bas <strong>CabSe</strong>."
+                </p>
+            </div>
+            <div style="margin-top: 40px;">
+                <p style="font-size: 1.1rem; opacity: 0.9;">
+                    Let's build the future of transportation together
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Controls and Navigation -->
+    <div class="controls">
+        <button class="control-btn" onclick="previousSlide()">← Previous</button>
+        <button class="control-btn" onclick="nextSlide()">Next →</button>
+    </div>
+
+    <div class="slide-indicator">
+        <div class="indicator-dot active" onclick="goToSlide(1)"></div>
+        <div class="indicator-dot" onclick="goToSlide(2)"></div>
+        <div class="indicator-dot" onclick="goToSlide(3)"></div>
+        <div class="indicator-dot" onclick="goToSlide(4)"></div>
+        <div class="indicator-dot" onclick="goToSlide(5)"></div>
+        <div class="indicator-dot" onclick="goToSlide(6)"></div>
+        <div class="indicator-dot" onclick="goToSlide(7)"></div>
+        <div class="indicator-dot" onclick="goToSlide(8)"></div>
+        <div class="indicator-dot" onclick="goToSlide(9)"></div>
+        <div class="indicator-dot" onclick="goToSlide(10)"></div>
+        <div class="indicator-dot" onclick="goToSlide(11)"></div>
+        <div class="indicator-dot" onclick="goToSlide(12)"></div>
+        <div class="indicator-dot" onclick="goToSlide(13)"></div>
+        <div class="indicator-dot" onclick="goToSlide(14)"></div>
+        <div class="indicator-dot" onclick="goToSlide(15)"></div>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 15;
+
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            const dots = document.querySelectorAll('.indicator-dot');
+            
+            // Hide all slides
+            slides.forEach(slide => {
+                slide.classList.remove('active', 'prev');
+            });
+            
+            // Remove active class from all dots
+            dots.forEach(dot => {
+                dot.classList.remove('active');
+            });
+            
+            // Show current slide
+            const currentSlideElement = document.querySelector('.slide-' + n);
+            if (currentSlideElement) {
+                currentSlideElement.classList.add('active');
+            }
+            
+            // Activate current dot
+            if (dots[n-1]) {
+                dots[n-1].classList.add('active');
+            }
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides) {
+                currentSlide++;
+            } else {
+                currentSlide = 1;
+            }
+            showSlide(currentSlide);
+        }
+
+        function previousSlide() {
+            if (currentSlide > 1) {
+                currentSlide--;
+            } else {
+                currentSlide = totalSlides;
+            }
+            showSlide(currentSlide);
+        }
+
+        function goToSlide(n) {
+            currentSlide = n;
+            showSlide(currentSlide);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                previousSlide();
+            }
+        });
+
+        // Auto-advance (optional - uncomment to enable)
+        // setInterval(nextSlide, 10000); // Auto-advance every 10 seconds
+
+        // Initialize
+        showSlide(1);
+    </script>
+</body>
+</html>
