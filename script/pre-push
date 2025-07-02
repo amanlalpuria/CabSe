@@ -1,0 +1,26 @@
+#!/bin/bash
+
+echo "This is pre-push check"
+
+# If any command fails, exit immediately
+set -e
+
+# Set environment variables
+export DB_HOST="localhost"
+export DB_PASSWORD="cabse_rw_user"
+export DB_PORT="5432"
+export DB_USER="cabse_rw_user"
+export DB_NAME="cabse"
+
+# Optional: Print for debug (REMOVE IN PRODUCTION)
+echo "🔐 Environment variables loaded."
+
+# OS detection and Maven build
+case "$OSTYPE" in
+  linux*)   echo "🖥️ LINUX detected"
+            ./mvnw clean install ;;
+  msys*)    echo "🪟 WINDOWS detected"
+            ./mvnw.cmd clean install ;;
+  *)        echo "❌ Unsupported OS: $OSTYPE"
+            exit 1 ;;
+esac

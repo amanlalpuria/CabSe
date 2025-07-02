@@ -1,0 +1,50 @@
+services:
+  postgres:
+    image: postgis/postgis:17-3.4
+    container_name: postgres_db
+    environment:
+      POSTGRES_USER: cabse_rw_user
+      POSTGRES_PASSWORD: cabse_rw_user
+      POSTGRES_DB: cabse
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+
+#  backend:
+#    build:
+#      dockerfile: Dockerfile
+#    container_name: backend-service
+#    environment:
+#      DB_HOST: ${DB_HOST}
+#      DB_PORT: ${DB_PORT}
+#      DB_USER: ${DB_USER}
+#      DB_PASSWORD: ${DB_PASSWORD}
+#      DB_NAME: ${DB_NAME}
+#    mem_limit: 512m
+#    ports:
+#      - "8080:8080"
+#    restart: always
+#    networks:
+#      - backend
+#    command: [ "java", "-Xmx256m", "-Xms128m", "-jar", "cabse.jar" ]
+#    healthcheck:
+#      test: [ "CMD", "curl", "-f", "http://localhost:8080/actuator/health" ]
+#      interval: 30s
+#      timeout: 10s
+#      retries: 5
+#      start_period: 30s
+
+volumes:
+  postgres_data: {}
+
+networks:
+  backend:
+    driver: bridge
