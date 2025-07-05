@@ -19,7 +19,7 @@ Table person {
 
   last_login_at timestamptz
 
-  provider VARCHAR(50) //GOOGLE APPLE FACEBOOK
+  provider VARCHAR(50) //GOOGLE APPLE FACEBOKK
   social_id VARCHAR(255)  // GOOGLE APPLE ID..
 
   receive_notification boolean //Flag to receive notification
@@ -31,16 +31,6 @@ Table person {
   password_changed_at TIMESTAMP //should be pass in jwt so that after password change time the token should not be valid
 
   is_deleted BOOLEAN //if person mark account deleted we just need to mark this flag instead of deleting complete user details
-
-  // to store app information, it can help us track build issues on specific versions
-  client_bundle_version text
-  client_config_version text
-  client_os_type text
-  client_os_version text
-  client_sdk_version text
-  client_react_native_version text
-  imei_number_hash bytea
-  imei_number_encrypted character
 
   customer_referral_code text
   referral_code character
@@ -60,6 +50,25 @@ Table person {
   updated_at timestamptz
 }
 
+Table person_device_used{
+  id character(36) [pk]
+  person_id character(36)
+  // to store app information, it can help us track build issues on specific versions
+  client_bundle_version text
+  client_config_version text
+  client_os_type text
+  client_os_version text
+  client_sdk_version text
+  client_react_native_version text
+  imei_number_hash bytea
+  imei_number_encrypted character
+
+  created_at timestamptz
+  updated_at timestamptz
+
+  Note: "Unique(user_id, api_entity)"
+}
+
 Table role {
   id character(36) [pk]
   name varchar(255) [unique]
@@ -74,7 +83,6 @@ Table rider {
   id character(36) [pk]
   user_id character(36)
   adhar_verified boolean
-
   // rule based system to judge rider
   blocked boolean
   blocked_at timestamp
@@ -88,6 +96,7 @@ Table rider {
 
 Table ride {
   id character(36) [pk]
+  rider_id character(36)
   booking_id character(36)
   // driver_ride_params
   previour_ride_trip_end_lon number // to track location from last ride to current ride
@@ -118,6 +127,7 @@ Table ride {
   Note: "Unique(user_id, api_entity)"
 }
 
-
+Ref: ride.rider_id > rider.id
+Ref: person_device_used.person_id > person.id
 Ref: person.role_id > role.id
 Ref: rider.user_id > person.id

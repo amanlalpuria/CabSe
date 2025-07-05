@@ -1,4 +1,63 @@
--- Create table: role
+-- ===========================================
+-- Flyway Migration Script: V1__create_ride_and_person_tables.sql
+-- Purpose: Create core tables for person, rider, ride, role, and person_device_used
+-- ===========================================
+
+-- PERSON TABLE
+CREATE TABLE person (
+    id CHARACTER(36) PRIMARY KEY,
+    uuid UUID,
+    role_id CHARACTER(36) REFERENCES role(id),
+
+    first_name VARCHAR(255),
+    last_name VARCHAR(255),
+
+    email_encrypted VARCHAR(255),
+    email_hash BYTEA,
+    email_verified BOOLEAN,
+
+    mobile_number_encrypted VARCHAR(255),
+    mobile_number_hash BYTEA,
+    mobile_country_code VARCHAR(255),
+    mobile_verified BOOLEAN,
+
+    gender VARCHAR(255),
+    date_of_birth TIMESTAMP,
+    profile_picture TEXT,
+
+    password_hash BYTEA,
+
+    last_login_at TIMESTAMPTZ,
+
+    provider VARCHAR(50), -- GOOGLE, APPLE, FACEBOOK
+    social_id VARCHAR(255), -- ID from respective social provider
+
+    receive_notification BOOLEAN,
+    notification_token VARCHAR(255), -- Firebase FCM token
+
+    failed_login_attempts INTEGER,
+    failed_otp_attempts INTEGER,
+
+    password_changed_at TIMESTAMP, -- used to invalidate tokens issued before
+
+    is_deleted BOOLEAN, -- soft delete
+
+    customer_referral_code TEXT,
+    referral_code CHARACTER,
+    referred_at TIMESTAMP,
+    referred_by_customer TEXT,
+
+    share_emergency_contacts BOOLEAN,
+    share_trip_with_emergency_contact_option TEXT,
+
+    language CHARACTER,
+    cabse_ratings INTEGER,
+
+    created_at TIMESTAMPTZ,
+    updated_at TIMESTAMPTZ
+);
+
+-- ROLE TABLE
 CREATE TABLE role (
     id CHARACTER(36) PRIMARY KEY,
     name VARCHAR(255) UNIQUE,
@@ -9,79 +68,33 @@ CREATE TABLE role (
     updated_at TIMESTAMPTZ
 );
 
--- Create table: person
-CREATE TABLE person (
+-- PERSON_DEVICE_USED TABLE
+CREATE TABLE person_device_used (
     id CHARACTER(36) PRIMARY KEY,
-    uuid UUID,
-    role_id CHARACTER(36),
-    first_name VARCHAR(255),
-    last_name VARCHAR(255),
-    email_encrypted VARCHAR(255),
-    email_hash BYTEA,
-    email_verified BOOLEAN,
-    mobile_number_encrypted VARCHAR(255),
-    mobile_number_hash BYTEA,
-    mobile_country_code VARCHAR(255),
-    mobile_verified BOOLEAN,
-    gender VARCHAR(255),
-    date_of_birth TIMESTAMP,
-    profile_picture TEXT,
-    password_hash BYTEA,
-    last_login_at TIMESTAMPTZ,
+    person_id CHARACTER(36) REFERENCES person(id),
 
-    -- Social login provider info (e.g., GOOGLE, APPLE, FACEBOOK)
-    provider VARCHAR(50),
-    social_id VARCHAR(255),
-
-    -- Notification support
-    receive_notification BOOLEAN,
-    notification_token VARCHAR(255),
-
-    -- Account security
-    failed_login_attempts INTEGER,
-    failed_otp_attempts INTEGER,
-    password_changed_at TIMESTAMP,
-    is_deleted BOOLEAN,
-
-    -- App client diagnostics
     client_bundle_version TEXT,
     client_config_version TEXT,
     client_os_type TEXT,
     client_os_version TEXT,
     client_sdk_version TEXT,
     client_react_native_version TEXT,
+
     imei_number_hash BYTEA,
     imei_number_encrypted CHARACTER,
-
-    -- Referral system
-    customer_referral_code TEXT,
-    referral_code CHARACTER,
-    referred_at TIMESTAMP,
-    referred_by_customer TEXT,
-
-    -- Ladies safety feature
-    share_emergency_contacts BOOLEAN,
-    share_trip_with_emergency_contact_option TEXT,
-
-    -- Local language support
-    language CHARACTER,
-
-    -- CABSE ratings
-    cabse_ratings INTEGER,
 
     created_at TIMESTAMPTZ,
     updated_at TIMESTAMPTZ,
 
-    CONSTRAINT fk_person_role FOREIGN KEY (role_id) REFERENCES role(id)
+    CONSTRAINT unique_person_device UNIQUE (person_id, client_bundle_version)
 );
 
--- Create table: rider
+-- RIDER TABLE
 CREATE TABLE rider (
     id CHARACTER(36) PRIMARY KEY,
-    user_id CHARACTER(36),
-    adhar_verified BOOLEAN,
+    user_id CHARACTER(36) REFERENCES person(id),
 
-    -- Rule-based block system
+    adhar_verified BOOLEAN,
     blocked BOOLEAN,
     blocked_at TIMESTAMP,
     blocked_by_rule_id VARCHAR(200),
@@ -89,16 +102,15 @@ CREATE TABLE rider (
     created_at TIMESTAMPTZ,
     updated_at TIMESTAMPTZ,
 
-    CONSTRAINT fk_rider_user FOREIGN KEY (user_id) REFERENCES person(id),
-    CONSTRAINT uq_rider_user_id UNIQUE (user_id)
+    CONSTRAINT unique_rider_user UNIQUE (user_id)
 );
 
--- Create table: ride
+-- RIDE TABLE
 CREATE TABLE ride (
     id CHARACTER(36) PRIMARY KEY,
+    rider_id CHARACTER(36) REFERENCES rider(id),
     booking_id CHARACTER(36),
 
-    -- Previous ride end location
     previour_ride_trip_end_lon NUMERIC,
     previour_ride_trip_end_lat NUMERIC,
 
@@ -118,10 +130,12 @@ CREATE TABLE ride (
 
     toll_charges NUMERIC,
     toll_names TEXT[],
-    fare NUMERIC,
 
+    fare NUMERIC,
     online_payment BOOLEAN,
 
     created_at TIMESTAMPTZ,
-    updated_at TIMESTAMPTZ
+    updated_at TIMESTAMPTZ,
+
+    CONSTRAINT unique_rider_booking UNIQUE (rider_id, booking_id)
 );
