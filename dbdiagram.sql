@@ -19,7 +19,7 @@ Table person {
 
   last_login_at timestamptz
 
-  provider VARCHAR(50) //GOOGLE APPLE FACEBOKK
+  provider VARCHAR(50) //GOOGLE APPLE FACEBOOK
   social_id VARCHAR(255)  // GOOGLE APPLE ID..
 
   receive_notification boolean //Flag to receive notification
@@ -74,10 +74,43 @@ Table rider {
   id character(36) [pk]
   user_id character(36)
   adhar_verified boolean
+
   // rule based system to judge rider
   blocked boolean
   blocked_at timestamp
   blocked_by_rule_id VARCHAR(200)
+
+  created_at timestamptz
+  updated_at timestamptz
+
+  Note: "Unique(user_id, api_entity)"
+}
+
+Table ride {
+  id character(36) [pk]
+  booking_id character(36)
+  // driver_ride_params
+  previour_ride_trip_end_lon number // to track location from last ride to current ride
+  previour_ride_trip_end_lat number // to track location from last ride to current ride
+  driver_arrival_time timestamptz
+  is_advance_booking boolean
+
+  traveled_distance number
+  chargeable_distance number
+
+  trip_end_lat number
+  trip_end_log number
+  trip_end_time timestamp
+
+  trip_start_lat number
+  trip_start_log number
+  trip_start_time timestamp
+
+  toll_charges number
+  toll_names text[]
+  fare number
+
+  online_payment boolean
 
   created_at timestamptz
   updated_at timestamptz
